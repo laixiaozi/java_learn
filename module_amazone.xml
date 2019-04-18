@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_amazone" default="compile.module.amazone">
+    <dirname property="module.amazone.basedir" file="${ant.file.module_amazone}"/>
+
+    <property name="module.jdk.home.amazone" value="${project.jdk.home}"/>
+    <property name="module.jdk.bin.amazone" value="${project.jdk.bin}"/>
+    <property name="module.jdk.classpath.amazone" value="${project.jdk.classpath}"/>
+
+    <property name="compiler.args.amazone" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+
+    <property name="amazone.output.dir" value="${module.amazone.basedir}/out/production/amazone"/>
+    <property name="amazone.testoutput.dir" value="${module.amazone.basedir}/out/test/amazone"/>
+
+    <path id="amazone.module.bootclasspath">
+        <!-- Paths to be included in compilation bootclasspath -->
+    </path>
+
+    <path id="amazone.module.production.classpath">
+        <path refid="${module.jdk.classpath.amazone}"/>
+    </path>
+
+    <path id="amazone.runtime.production.module.classpath">
+        <pathelement location="${amazone.output.dir}"/>
+    </path>
+
+    <path id="amazone.module.classpath">
+        <path refid="${module.jdk.classpath.amazone}"/>
+        <pathelement location="${amazone.output.dir}"/>
+    </path>
+
+    <path id="amazone.runtime.module.classpath">
+        <pathelement location="${amazone.testoutput.dir}"/>
+        <pathelement location="${amazone.output.dir}"/>
+    </path>
+
+
+    <patternset id="excluded.from.module.amazone">
+        <patternset refid="ignored.files"/>
+    </patternset>
+
+    <patternset id="excluded.from.compilation.amazone">
+        <patternset refid="excluded.from.module.amazone"/>
+    </patternset>
+
+    <path id="amazone.module.sourcepath">
+        <dirset dir="${module.amazone.basedir}">
+            <include name="src"/>
+        </dirset>
+    </path>
+
+
+    <target name="compile.module.amazone" depends="compile.module.amazone.production,compile.module.amazone.tests"
+            description="Compile module amazone"/>
+
+    <target name="compile.module.amazone.production" depends="register.custom.compilers"
+            description="Compile module amazone; production classes">
+        <mkdir dir="${amazone.output.dir}"/>
+        <javac2 destdir="${amazone.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}"
+                memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.amazone}/javac">
+            <compilerarg line="${compiler.args.amazone}"/>
+            <bootclasspath refid="amazone.module.bootclasspath"/>
+            <classpath refid="amazone.module.production.classpath"/>
+            <src refid="amazone.module.sourcepath"/>
+            <patternset refid="excluded.from.compilation.amazone"/>
+        </javac2>
+
+        <copy todir="${amazone.output.dir}">
+            <fileset dir="${module.amazone.basedir}/src">
+                <patternset refid="compiler.resources"/>
+                <type type="file"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="compile.module.amazone.tests" depends="register.custom.compilers,compile.module.amazone.production"
+            description="compile module amazone; test classes" unless="skip.tests"/>
+
+    <target name="clean.module.amazone" description="cleanup module">
+        <delete dir="${amazone.output.dir}"/>
+        <delete dir="${amazone.testoutput.dir}"/>
+    </target>
+</project>
